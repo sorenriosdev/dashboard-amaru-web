@@ -1,31 +1,36 @@
-// app/dashboard/layout.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Sidebar from '@/app/components/layout/Sidebar'
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+type UserRole = 'admin' | 'medico' | 'personal'
+
+// Función helper para obtener el rol de forma segura
+function getUserRole(): UserRole {
+  if (typeof window === 'undefined') return 'medico'
+  
+  const storedRole = localStorage.getItem('userRole')
+  if (storedRole === 'admin' || storedRole === 'medico' || storedRole === 'personal') {
+    return storedRole as UserRole
+  }
+  return 'medico'
+}
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const [isCollapsed, setIsCollapsed] = useState(false)
+  // Inicializamos el estado con una función lazy para leer del localStorage
+  const [userRole, setUserRole] = useState<UserRole>(getUserRole)
 
   useEffect(() => {
-    // Verificar si hay token (autenticación simple)
     const token = localStorage.getItem('token')
     
     if (!token) {
-      // Si no hay token, redirigir al login
       router.push('/login')
     }
+    // Ya no necesitamos setUserRole aquí porque se inicializa correctamente
   }, [router])
-
-  // TODO: Obtener el rol del usuario desde tu API
-  // Cambiar 'medico' por 'admin' para ver el menú de administración
-  const userRole = 'admin' // Opciones: 'admin' | 'medico' | 'personal'
 
   return (
     <div className="flex min-h-screen bg-gray-50">

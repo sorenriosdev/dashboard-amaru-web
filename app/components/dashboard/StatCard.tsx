@@ -1,72 +1,62 @@
-// app/components/dashboard/StatCard.tsx
-'use client'
-
 import { LucideIcon } from 'lucide-react'
-import { Card } from '@/app/components/ui/card'
+import { Card, CardContent } from '@/app/components/ui/card'
+import { cn } from '@/app/lib/utils'
 
 interface StatCardProps {
   title: string
   value: string | number
   icon: LucideIcon
+  color: 'blue' | 'green' | 'orange' | 'purple' | 'red'
   trend?: {
     value: string
     isPositive: boolean
   }
-  color?: 'blue' | 'green' | 'orange' | 'purple'
-  href?: string
-  onClick?: () => void
 }
 
-export default function StatCard({ 
-  title, 
-  value, 
-  icon: Icon, 
-  trend, 
-  color = 'blue',
-  href,
-  onClick 
-}: StatCardProps) {
-  const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600 group-hover:bg-blue-100',
-    green: 'bg-green-50 text-green-600 group-hover:bg-green-100',
-    orange: 'bg-orange-50 text-orange-600 group-hover:bg-orange-100',
-    purple: 'bg-purple-50 text-purple-600 group-hover:bg-purple-100',
+export default function StatCard({ title, value, icon: Icon, color, trend }: StatCardProps) {
+  
+  // Mapeo de colores para bordes y fondos sutiles
+  const colorStyles = {
+    blue:   'border-l-blue-500   bg-blue-50/30   text-blue-600',
+    green:  'border-l-green-500  bg-green-50/30  text-green-600',
+    orange: 'border-l-orange-500 bg-orange-50/30 text-orange-600',
+    purple: 'border-l-purple-500 bg-purple-50/30 text-purple-600',
+    red:    'border-l-red-500    bg-red-50/30    text-red-600',
   }
 
-  const isInteractive = href || onClick
-
-  const content = (
-    <Card className={`p-6 transition-all duration-200 ${
-      isInteractive 
-        ? 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 active:translate-y-0' 
-        : ''
-    }`}>
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
-          
-          {trend && (
-            <p className={`mt-2 text-sm font-medium ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
+  return (
+    <Card className={cn(
+      "border-l-4 shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden",
+      colorStyles[color].split(' ')[0] // Extrae solo la clase del borde
+    )}>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
+            <h3 className="text-2xl font-bold text-gray-800 tracking-tight">{value}</h3>
+          </div>
+          <div className={cn(
+            "p-3 rounded-2xl shadow-sm",
+            colorStyles[color] // Aplica bg y text
+          )}>
+            <Icon className="h-6 w-6" />
+          </div>
+        </div>
+        
+        {trend && (
+          <div className="mt-4 flex items-center text-xs">
+            <span className={cn(
+              "font-medium px-2 py-0.5 rounded-full",
+              trend.isPositive 
+                ? "bg-green-100 text-green-700" 
+                : "bg-red-100 text-red-700"
+            )}>
               {trend.isPositive ? '↑' : '↓'} {trend.value}
-            </p>
-          )}
-        </div>
-
-        <div className={`rounded-xl p-3 transition-colors duration-200 ${colorClasses[color]}`}>
-          <Icon className="h-6 w-6" />
-        </div>
-      </div>
+            </span>
+            <span className="text-gray-400 ml-2">vs último turno</span>
+          </div>
+        )}
+      </CardContent>
     </Card>
   )
-
-  if (href) {
-    return <a href={href} className="group block">{content}</a>
-  }
-
-  if (onClick) {
-    return <button onClick={onClick} className="group block w-full text-left">{content}</button>
-  }
-
-  return content
 }

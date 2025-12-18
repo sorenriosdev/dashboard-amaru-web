@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
@@ -8,7 +9,6 @@ import {
   Clock, 
   Users, 
   Calendar,
-  UserCircle,
   Settings,
   LogOut,
   ChevronDown,
@@ -17,17 +17,22 @@ import {
   PanelLeftOpen,
   Bell,
   ClipboardList,
-  BarChart3
-} from 'lucide-react'
+  BarChart3,
+  UserCircle
+} from 'lucide-react' // Asegúrate de importar UserCircle que faltaba en tu lista original si se usa
 import { cn } from '@/app/lib/utils'
 
+// 1. Actualizamos la interfaz para recibir las props de control
 interface SidebarProps {
   userRole: 'admin' | 'medico' | 'personal'
+  isCollapsed: boolean
+  setIsCollapsed: (value: boolean) => void
 }
 
-export default function Sidebar({ userRole }: SidebarProps) {
+// 2. Desestructuramos las nuevas props
+export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }: SidebarProps) {
   const pathname = usePathname()
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  // Eliminamos el useState interno de isCollapsed
   const [isAdminOpen, setIsAdminOpen] = useState(true)
 
   const mainMenuItems = [
@@ -46,6 +51,17 @@ export default function Sidebar({ userRole }: SidebarProps) {
     { icon: ClipboardList, label: 'Historial', href: '/dashboard/admin/historial' },
   ]
 
+  const router = useRouter()
+
+  const handleLogout = () => {
+    // Borramos todo rastro de la sesión
+    localStorage.removeItem('token')
+    localStorage.removeItem('userRole') // Borraremos también el rol (ver paso 2)
+    
+    // Redirigimos al login
+    router.push('/login')
+  }
+
   return (
     <aside 
       className={cn(
@@ -63,6 +79,7 @@ export default function Sidebar({ userRole }: SidebarProps) {
               </div>
               <span className="text-xl font-bold text-gray-800">AMARU</span>
             </div>
+            {/* Usamos la prop setIsCollapsed */}
             <button
               onClick={() => setIsCollapsed(true)}
               className="p-2 hover:bg-blue-200/50 rounded-lg transition-colors"
@@ -108,7 +125,6 @@ export default function Sidebar({ userRole }: SidebarProps) {
 
       {/* Main Navigation */}
       <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
-        {/* Main Menu Items */}
         {mainMenuItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
@@ -165,7 +181,6 @@ export default function Sidebar({ userRole }: SidebarProps) {
                   )}
                 </button>
 
-                {/* Admin Submenu */}
                 {isAdminOpen && (
                   <div className="mt-1 space-y-1 ml-4">
                     {adminMenuItems.map((item) => {
@@ -198,7 +213,6 @@ export default function Sidebar({ userRole }: SidebarProps) {
                 )}
               </>
             ) : (
-              // Collapsed admin icon
               <button
                 className="flex w-full items-center justify-center rounded-xl px-4 py-3 text-gray-700 hover:bg-white/40 transition-all duration-200"
                 title="Administración"
@@ -213,6 +227,7 @@ export default function Sidebar({ userRole }: SidebarProps) {
       {/* Logout Button */}
       <div className="p-3 border-t border-blue-300/30">
         <button 
+          onClick={handleLogout} // <--- AGREGAR ESTO
           className={cn(
             'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200',
             isCollapsed && 'justify-center'

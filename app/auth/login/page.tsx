@@ -1,10 +1,14 @@
 'use client'
-
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react' // Opcional: para ícono de carga
 
 export default function LoginPage() {
   const router = useRouter()
+  
+  // 1. CORRECCIÓN: Agregamos el estado isLoading
+  const [isLoading, setIsLoading] = useState(false)
+  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -12,8 +16,28 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    localStorage.setItem('token', 'mock-token-123')
-    router.push('/dashboard')
+    setIsLoading(true)
+
+    try {
+      // Guardamos Token falso
+      localStorage.setItem('token', 'mock-token-123')
+      
+      // 2. CORRECCIÓN: Usamos formData.email en lugar de email
+      if (formData.email.includes('admin')) {
+        localStorage.setItem('userRole', 'admin')
+      } else {
+        localStorage.setItem('userRole', 'medico') 
+      }
+
+      // Pequeño delay para que se sienta real la carga (opcional)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      router.push('/dashboard')
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -41,7 +65,8 @@ export default function LoginPage() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-                placeholder="tu@email.com"
+                placeholder="admin@amaru.com"
+                disabled={isLoading}
               />
             </div>
 
@@ -56,20 +81,29 @@ export default function LoginPage() {
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
                 placeholder="••••••••"
+                disabled={isLoading}
               />
             </div>
 
             <button
               type="submit"
-              className="w-full h-12 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              disabled={isLoading}
+              className="w-full h-12 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Ingresar
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Ingresando...
+                </>
+              ) : (
+                'Ingresar'
+              )}
             </button>
           </form>
 
           <div className="mt-6 p-4 rounded-lg bg-blue-50 border border-blue-200">
-            <p className="text-xs text-blue-700">
-              💡 Usa cualquier email y contraseña para probar
+            <p className="text-xs text-blue-700 text-center">
+              💡 Tip: Usa <b>admin@...</b> para ver rol Administrador
             </p>
           </div>
         </div>
