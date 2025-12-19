@@ -19,27 +19,26 @@ import {
   ClipboardList,
   BarChart3,
   UserCircle
-} from 'lucide-react' // Asegúrate de importar UserCircle que faltaba en tu lista original si se usa
+} from 'lucide-react'
 import { cn } from '@/app/lib/utils'
 
-// 1. Actualizamos la interfaz para recibir las props de control
 interface SidebarProps {
   userRole: 'admin' | 'medico' | 'personal'
   isCollapsed: boolean
   setIsCollapsed: (value: boolean) => void
 }
 
-// 2. Desestructuramos las nuevas props
 export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }: SidebarProps) {
   const pathname = usePathname()
-  // Eliminamos el useState interno de isCollapsed
+  const router = useRouter()
   const [isAdminOpen, setIsAdminOpen] = useState(true)
 
+  // TU MENÚ ESTÁ BIEN ASÍ, NO NECESITAS CAMBIAR NADA AQUÍ
   const mainMenuItems = [
     { icon: LayoutDashboard, label: 'Home', href: '/dashboard', badge: null },
     { icon: Clock, label: 'Turno', href: '/dashboard/asistencia', badge: 3 },
     { icon: Calendar, label: 'Horarios', href: '/dashboard/horarios', badge: null },
-    { icon: ClipboardList, label: 'Citas', href: '/dashboard/citas', badge: null },
+    { icon: ClipboardList, label: 'Citas', href: '/dashboard/citas', badge: null }, 
   ]
 
   const adminMenuItems = [
@@ -51,15 +50,12 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }: Sideb
     { icon: ClipboardList, label: 'Historial', href: '/dashboard/admin/historial' },
   ]
 
-  const router = useRouter()
-
   const handleLogout = () => {
-    // Borramos todo rastro de la sesión
     localStorage.removeItem('token')
-    localStorage.removeItem('userRole') // Borraremos también el rol (ver paso 2)
+    localStorage.removeItem('userRole')
     
-    // Redirigimos al login
-    router.push('/login')
+    // CORRECCIÓN AQUÍ: La ruta correcta es /auth/login
+    router.push('/auth/login')
   }
 
   return (
@@ -69,7 +65,7 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }: Sideb
         isCollapsed ? 'w-20' : 'w-64'
       )}
     >
-      {/* Header con Logo y Toggle */}
+      {/* Header */}
       <div className="flex items-center justify-between px-6 py-6 border-b border-blue-300/30">
         {!isCollapsed ? (
           <>
@@ -79,11 +75,9 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }: Sideb
               </div>
               <span className="text-xl font-bold text-gray-800">AMARU</span>
             </div>
-            {/* Usamos la prop setIsCollapsed */}
             <button
               onClick={() => setIsCollapsed(true)}
               className="p-2 hover:bg-blue-200/50 rounded-lg transition-colors"
-              title="Colapsar sidebar"
             >
               <PanelLeftClose className="h-5 w-5 text-gray-700" />
             </button>
@@ -92,7 +86,6 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }: Sideb
           <button
             onClick={() => setIsCollapsed(false)}
             className="mx-auto p-2 hover:bg-blue-200/50 rounded-lg transition-colors"
-            title="Expandir sidebar"
           >
             <PanelLeftOpen className="h-5 w-5 text-gray-700" />
           </button>
@@ -114,7 +107,6 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }: Sideb
         </div>
       )}
 
-      {/* Collapsed User Icon */}
       {isCollapsed && (
         <div className="mx-auto my-6">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
@@ -123,7 +115,7 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }: Sideb
         </div>
       )}
 
-      {/* Main Navigation */}
+      {/* Nav */}
       <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
         {mainMenuItems.map((item) => {
           const Icon = item.icon
@@ -224,10 +216,10 @@ export default function Sidebar({ userRole, isCollapsed, setIsCollapsed }: Sideb
         )}
       </nav>
 
-      {/* Logout Button */}
+      {/* Logout */}
       <div className="p-3 border-t border-blue-300/30">
         <button 
-          onClick={handleLogout} // <--- AGREGAR ESTO
+          onClick={handleLogout}
           className={cn(
             'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200',
             isCollapsed && 'justify-center'

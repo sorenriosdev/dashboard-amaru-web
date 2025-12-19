@@ -1,38 +1,26 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react' // Opcional: para ícono de carga
+import { Loader2, Activity, User, Lock } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
-  
-  // 1. CORRECCIÓN: Agregamos el estado isLoading
   const [isLoading, setIsLoading] = useState(false)
-  
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
+  const [formData, setFormData] = useState({ email: '', password: '' })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
-      // Guardamos Token falso
-      localStorage.setItem('token', 'mock-token-123')
       
-      // 2. CORRECCIÓN: Usamos formData.email en lugar de email
-      if (formData.email.includes('admin')) {
-        localStorage.setItem('userRole', 'admin')
-      } else {
-        localStorage.setItem('userRole', 'medico') 
-      }
+      localStorage.setItem('token', 'mock-token-123')
+      const assignedRole = formData.email.includes('admin') ? 'admin' : 'medico'
+      localStorage.setItem('userRole', assignedRole)
 
-      // Pequeño delay para que se sienta real la carga (opcional)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise(resolve => setTimeout(resolve, 800))
 
-      router.push('/dashboard')
+      router.replace('/dashboard')
     } catch (error) {
       console.error(error)
     } finally {
@@ -41,71 +29,62 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700">
-      <div className="w-full max-w-md px-6">
-        <div className="text-center mb-8">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-blue-600 font-bold text-2xl mb-4 shadow-lg">
-            A
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-6">
+      <div className="w-full max-w-md bg-white rounded-[32px] shadow-xl p-10 border border-slate-100">
+        <div className="text-center mb-10">
+          <div className="h-16 w-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg text-white mb-4">
+            <Activity className="h-8 w-8" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">AMARU</h1>
-          <p className="text-blue-100">Sistema de Gestión Hospitalaria</p>
+          <h1 className="text-3xl font-black text-slate-800 tracking-tight">AMARU</h1>
+          <p className="text-slate-400 text-sm">Inicie sesión para continuar</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Iniciar Sesión</h2>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Correo Electrónico
-              </label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Email</label>
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
               <input
                 type="email"
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                className="w-full h-12 pl-12 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                 placeholder="admin@amaru.com"
                 disabled={isLoading}
               />
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contraseña
-              </label>
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-500 uppercase ml-1">Contraseña</label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
               <input
                 type="password"
                 required
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                className="w-full h-12 pl-12 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                 placeholder="••••••••"
                 disabled={isLoading}
               />
             </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-12 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Ingresando...
-                </>
-              ) : (
-                'Ingresar'
-              )}
-            </button>
-          </form>
-
-          <div className="mt-6 p-4 rounded-lg bg-blue-50 border border-blue-200">
-            <p className="text-xs text-blue-700 text-center">
-              💡 Tip: Usa <b>admin@...</b> para ver rol Administrador
-            </p>
           </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-14 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Ingresar'}
+          </button>
+        </form>
+        
+        <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-100">
+          <p className="text-[11px] text-blue-700 text-center font-medium">
+            Tip: Solo correos con la palabra <b>admin</b> activan el panel de control.
+          </p>
         </div>
       </div>
     </div>
